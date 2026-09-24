@@ -19,8 +19,8 @@ jobs:
           LATEST_XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
           echo "Selecting $LATEST_XCODE"
           sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
-	sudo xcodebuild -license accept 
-	sudo xcodebuild -runFirstLaunch
+          sudo xcodebuild -license accept
+          sudo xcodebuild -runFirstLaunch
           xcodebuild -version
 
       - name: Show available simulators
