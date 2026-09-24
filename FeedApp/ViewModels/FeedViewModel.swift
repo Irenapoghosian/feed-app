@@ -14,12 +14,20 @@ final class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    @Published var searchQuery = ""
+    @Published var searchResults: [Photo] = []
+    @Published var isSearching = false
+
     private let apiClient: PhotoFetching
     private var currentPage = 1
     private var canLoadMore = true
-    
+
     init(apiClient: PhotoFetching = UnsplashAPIClient()) {
         self.apiClient = apiClient
+    }
+
+    var isShowingSearchResults: Bool {
+        !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func loadInitialPhotos() async {
@@ -37,6 +45,24 @@ final class FeedViewModel: ObservableObject {
         currentPage = 1
         canLoadMore = true
         await loadPhotos(reset: true)
+    }
+
+    func performSearch() async {
+        let trimmed = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            searchResults = []
+            return
+        }
+
+        isSearching = true
+        errorMessage = nil
+        defer { isSearching = false }
+
+        do {
+            searchResults = try await apiClient.searchPhotos(query: trimmed, page: 1)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     private func loadPhotos(reset: Bool) async {

@@ -19,7 +19,7 @@ struct FeedView: View {
         NavigationStack {
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 2) {
-                    ForEach(viewModel.photos) { photo in
+                    ForEach(displayedPhotos) { photo in
                         NavigationLink {
                             PhotoDetailView(photo: photo)
                         } label: {
@@ -29,12 +29,13 @@ struct FeedView: View {
                         }
                         .buttonStyle(.plain)
                         .task {
+                            guard !viewModel.isShowingSearchResults else { return }
                             await viewModel.loadMoreIfNeeded(currentItem: photo)
                         }
                     }
                 }
 
-                if viewModel.isLoading {
+                if viewModel.isLoading || viewModel.isSearching {
                     ProgressView()
                         .padding()
                 }
@@ -45,14 +46,36 @@ struct FeedView: View {
                         .foregroundColor(.red)
                         .padding()
                 }
+
+                if viewModel.isShowingSearchResults && viewModel.searchResults.isEmpty && !viewModel.isSearching {
+                    Text("No photos found")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
             }
             .navigationTitle("Feed")
+            .searchable(text: $viewModel.searchQuery, prompt: "Search photos")
             .task {
                 await viewModel.loadInitialPhotos()
             }
+            .task(id: viewModel.searchQuery) {
+                guard viewModel.isShowingSearchResults else { return }
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                guard !Task.isCancelled else { return }
+                await viewModel.performSearch()
+            }
             .refreshable {
-                await viewModel.refresh()
+                if viewModel.isShowingSearchResults {
+                    await viewModel.performSearch()
+                } else {
+                    await viewModel.refresh()
+                }
             }
         }
+    }
+
+    private var displayedPhotos: [Photo] {
+        viewModel.isShowingSearchResults ? viewModel.searchResults : viewModel.photos
     }
 }

@@ -10,9 +10,11 @@ import Foundation
 
 final class MockAPIClient: PhotoFetching {
     var pagesToReturn: [[Photo]] = []
+    var searchResultsToReturn: [Photo] = []
     var errorToThrow: Error?
     private(set) var requestedPages: [Int] = []
-    
+    private(set) var searchedQueries: [String] = []
+
     func fetchPhotos(page: Int, perPage: Int) async throws -> [Photo] {
         requestedPages.append(page)
         if let errorToThrow {
@@ -23,6 +25,14 @@ final class MockAPIClient: PhotoFetching {
             return []
         }
         return pagesToReturn[index]
+    }
+
+    func searchPhotos(query: String, page: Int, perPage: Int) async throws -> [Photo] {
+        searchedQueries.append(query)
+        if let errorToThrow {
+            throw errorToThrow
+        }
+        return searchResultsToReturn
     }
 }
 
