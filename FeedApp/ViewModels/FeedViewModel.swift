@@ -14,9 +14,13 @@ final class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let apiClient = UnsplashAPIClient()
+    private let apiClient: PhotoFetching
     private var currentPage = 1
     private var canLoadMore = true
+    
+    init(apiClient: PhotoFetching = UnsplashAPIClient()) {
+        self.apiClient = apiClient
+    }
 
     func loadInitialPhotos() async {
         guard photos.isEmpty else { return }
