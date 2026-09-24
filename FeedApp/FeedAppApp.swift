@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct FeedAppApp: App {
+    @StateObject private var favoritesStore = FavoritesStore()
+
     var body: some Scene {
         WindowGroup {
-            FeedView()
+            ContentTabView()
+                .environmentObject(favoritesStore)
         }
     }
 }

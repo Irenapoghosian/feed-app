@@ -9,8 +9,9 @@ import SwiftUI
 
 struct PhotoDetailView: View {
     let photo: Photo
+    @EnvironmentObject private var favoritesStore: FavoritesStore
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -34,13 +35,13 @@ struct PhotoDetailView: View {
                                 .font(.subheadline)
                         }
                     }
-                    
+
                     if let description = photo.description ?? photo.altDescription {
                         Text(description)
                             .font(.body)
                             .foregroundColor(.primary)
                     }
-                    
+
                     Text("Photo by \(photo.user.name) on Unsplash")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -51,44 +52,19 @@ struct PhotoDetailView: View {
         .navigationTitle("Photo")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    favoritesStore.toggleFavorite(photo)
+                } label: {
+                    Image(systemName: favoritesStore.isFavorite(photo) ? "heart.fill" : "heart")
+                        .foregroundColor(.red)
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Done") {
                     dismiss()
-                    
                 }
             }
         }
     }
 }
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
