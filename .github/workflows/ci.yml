@@ -23,6 +23,17 @@ jobs:
           sudo xcodebuild -runFirstLaunch
           xcodebuild -version
 
+      - name: Create Secrets.swift
+        env:
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+        run: |
+          mkdir -p FeedApp/Config
+          cat > FeedApp/Config/Secrets.swift << EOF
+          enum Secrets {
+              static let unsplashAccessKey = "$UNSPLASH_ACCESS_KEY"
+          }
+          EOF
+
       - name: Show available simulators
         run: xcrun simctl list devices available
 
